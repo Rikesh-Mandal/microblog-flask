@@ -25,4 +25,8 @@ class Config:
     ADMINS = ['rikeshmandal26@gmail.com']
 
     #pagination configuration
-    POSTS_PER_PAGE = 3
+    POSTS_PER_PAGE = 9
+
+    # Internationalization (i18n) configuration
+    # supported languages for the application
+    LANGUAGES = ['en', 'es']  # English and Spanish

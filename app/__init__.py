@@ -6,16 +6,22 @@ it executes and defines what symbols the package exposes to the outside world
 import logging
 import os
 from logging.handlers import RotatingFileHandler, SMTPHandler
-
 from flask import Flask
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_migrate import Migrate  #for db migration
-
 #sqlalchemy is an ORM - it allows high-level entities like classes, functions, methods to manage dbss
 from flask_sqlalchemy import SQLAlchemy
-
+from flask_moment import Moment #for date and time formatting, flask_moment is a wrapper around moment.js, a JavaScript library for date and time formatting
 from config import Config
+from flask_babel import Babel #for i18n and l10n, flask_babel is a wrapper around the Babel library, which provides tools for internationalization and localization in Python applications
+from flask import request #request object is used to access the incoming request data, such as form data, query parameters, headers, etc.
+
+
+def get_locale():
+    # This function is used to determine the best match for the user's preferred language.
+    # It uses the 'Accept-Language' header from the request to find the best match among the supported languages.
+    return request.accept_languages.best_match(app.config['LANGUAGES'])
 
 app = Flask(__name__) #creating instance of Flask 
 app.config.from_object(Config) #reading and applying the config file
@@ -24,6 +30,8 @@ db = SQLAlchemy(app) #db object that represents the database
 migrate = Migrate(app,db) #represents the db migration engine
 login = LoginManager(app) #instance of the login manager which is provided by flask-login extension
 mail = Mail(app) #instance of the mail extension
+moment = Moment(app) #instance of the moment extension
+babel = Babel(app, locale_selector=get_locale) #instance of the babel extension
 
 
 """
