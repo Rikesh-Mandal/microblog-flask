@@ -1,0 +1,82 @@
+# python
+__pycache__/
+*.py[cod]
+*$py.class
+
+#virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+#environment variables
+.env
+.env.*
+
+
+# Flask instance folder
+instance/
+
+# SQLite databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# macOS
+.DS_Store
+
+# Linux
+*~
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# mypy
+.mypy_cache/
+
+# Ruff
+.ruff_cache/
+
+# Pyre
+.pyre/
+
+# tox
+.tox/
+.nox/
+
+# Local Flask configuration
+flask_session/
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+
+#other
+.prettierignore

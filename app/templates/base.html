@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    {#
+         conditionals can be used using {% %} and {{ }} for placeholders
+    #}
+
+     {% if title %}
+    <title>{{ title }} - Microblog</title>
+    {% else %}
+    <title>Welcome to Microblog</title>
+    {% endif %}
+  </head>
+  <body>
+
+    <div>
+      Microblog: 
+      <a href="{{ url_for('index')}}">Home</a> 
+      <a href="{{ url_for('explore') }}">Explore</a>
+      {% if current_user.is_anonymous %}
+      <a href="{{ url_for('login')}}">Login</a>    
+      {% else %}
+      <a href="{{ url_for('user', username=current_user.username) }}">Profile</a>
+      <a href="{{ url_for('logout')}}">Logout</a>
+      {% endif %}
+    </div>
+
+
+    {# the hr tag draws a horizontal line #}
+    <hr />
+    
+    {# the section below is to display flashed messages stored using the flash() function #}
+
+    {# with construct assigning flashed messages to 'messages' variable #}
+    
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+      {% for message in messages %}
+      <li> {{ message }} </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
+
+    {# 
+    'block' control statement can be used to define where tempelates can
+    insert themselves 'blocks' are given unique names which derived templates
+    can reference when they provide their content in the block control statement below, 
+    'content' is the unique name
+    #} 
+
+    {% block content %} {% endblock %}
+  </body>
+</html>

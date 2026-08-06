@@ -1,0 +1,28 @@
+#just a config file
+import os
+from dotenv import load_dotenv
+
+load_dotenv() #loading the environment variables
+
+'''
+__file__ returns the path to current python file
+os.path.dirname - removes the filename and only returns the directory
+abspath returns the absolute path
+'''
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+class Config:
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        'sqlite:///' + os.path.join(basedir, 'app.db')
+
+    # Email server configuration for sending error logs via email
+    MAIL_SERVER = os.environ.get('MAIL_SERVER')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT') or 25)
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS') is not None
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    ADMINS = ['rikeshmandal26@gmail.com']
+
+    #pagination configuration
+    POSTS_PER_PAGE = 3
