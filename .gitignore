@@ -80,3 +80,6 @@ flask_session/
 
 #other
 .prettierignore
+
+#.pot files used in internationalization and localization
+messages.pot

@@ -3,7 +3,7 @@ from flask_mail import Message
 from flask import render_template
 from app import mail
 from app import app
-
+from flask_babel import _
 
 #for sending emails asynchronously, we need to create a new thread for each email. 
 #This is because sending an email can take a long time, 
@@ -25,7 +25,7 @@ def send_email(subject, sender, recipients, text_body, html_body):
 #checks if the user exists and then generates a token for the user.
 def send_password_reset_email(user):
     token = user.get_reset_password_token()
-    send_email('[Microblog] Reset Your Password',
+    send_email(_('[Microblog] Reset Your Password'),
                sender=app.config['ADMINS'][0],
                recipients=[user.email],
                text_body=render_template('email/reset_password.txt',
