@@ -99,6 +99,7 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', title=_('Register'), form=form)
 
+
 #route for password reset request
 @app.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():
