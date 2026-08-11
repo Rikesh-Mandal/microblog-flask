@@ -29,4 +29,4 @@ class Config:
 
     # Internationalization (i18n) configuration
     # supported languages for the application
-    LANGUAGES = ['en', 'es']  # English and Spanish
+    LANGUAGES = ['en', 'es', 'de']  # English, Spanish, and German
