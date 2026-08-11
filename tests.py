@@ -5,7 +5,7 @@ from datetime import datetime, timezone, timedelta
 import unittest
 from app import app, db
 from app.models import User, Post
-
+from app.translate import translate
 
 class UserModelCase(unittest.TestCase):
     def setUp(self):
@@ -95,6 +95,17 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(f3, [p3, p4])
         self.assertEqual(f4, [p4])
 
+
+class TranslationTestCase(unittest.TestCase):
+    def test_translation(self):
+        # Test translation from English to Spanish
+        text = "Hello, how are you?"
+        translated_text = translate(text, 'en', 'es')
+        self.assertEqual(translated_text, "Hola, ¿cómo estás?")
+
+        text2 = "Hola, ¿cómo estás?"
+        translated_text2 = translate(text2, 'es', 'en')
+        self.assertEqual(translated_text2, "Hey, how are you?")
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

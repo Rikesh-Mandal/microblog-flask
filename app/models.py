@@ -9,6 +9,7 @@ from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 from app import db, login, app
 
+
 #  representation of a many-to-many relationship requires the use of an auxiliary table called an association table.
 # Note that I am not declaring this table as a model, like I did for the users and posts tables. Since this is an auxiliary
 # table that has no data other than the foreign keys, I created it without an associated model class.
@@ -156,6 +157,6 @@ class Post(db.Model):
 
     user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id), index=True) #refers to the id in the User table
     author: so.Mapped[User] = so.relationship(back_populates='posts')
-
+    language: so.Mapped[Optional[str]] = so.mapped_column(sa.String(5))  # ISO 639-1 language code
     def __repr__(self):
         return f'<Post {self.body}>'
