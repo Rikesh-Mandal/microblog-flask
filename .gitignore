@@ -83,3 +83,10 @@ flask_session/
 
 #.pot files used in internationalization and localization
 messages.pot
+
+# certificates
+certs/
+certificates/
+*.crt  
+*.key
+*.pem

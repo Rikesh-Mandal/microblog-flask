@@ -14,7 +14,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'app.db')
+        'sqlite:///' + os.path.join(basedir, 'db', 'app.db')
 
     # Email server configuration for sending error logs via email
     MAIL_SERVER = os.environ.get('MAIL_SERVER')
@@ -29,4 +29,4 @@ class Config:
 
     # Internationalization (i18n) configuration
     # supported languages for the application
-    LANGUAGES = ['en', 'es', 'de']  # English, Spanish, and German
+    LANGUAGES = ['en', 'es']  # English, Spanish, and German
