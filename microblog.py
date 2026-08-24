@@ -4,7 +4,7 @@
 from app import app, db
 import sqlalchemy as sa
 import sqlalchemy.orm as so
-from app.models import User, Post
+from app.models import User, Post, Message, Notification
 from app import cli  # Import the CLI commands from the app package
 
 
@@ -16,4 +16,4 @@ from app import cli  # Import the CLI commands from the app package
 #When the flask shell command runs, it will invoke this function and register the items returned by it in the shell session.
 @app.shell_context_processor #this decorator registers the function as a shell context function.
 def make_shell_context():
-    return {'sa': sa, 'so': so, 'db': db, 'User': User, 'Post': Post}
+    return {'sa': sa, 'so': so, 'db': db, 'User': User, 'Post': Post, 'Message': Message, 'Notification': Notification}
