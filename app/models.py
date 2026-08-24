@@ -38,6 +38,7 @@ class User(UserMixin,db.Model): #db.Model is a base class for all models from FL
 
     #the 'Optional' helper allows the field to be nullable or empty
     password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
+    
 
     '''so.relationship()'. This is not an actual database field, but a high-level view of the relationship between users and posts
         Likewise, the Post class has an author field that is also initialized as a relationship.
