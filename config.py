@@ -30,3 +30,5 @@ class Config:
     # Internationalization (i18n) configuration
     # supported languages for the application
     LANGUAGES = ['en', 'es']  # English, Spanish, and German
+
+    REDIS_URL = os.environ.get('REDIS_URL') or 'redis://'

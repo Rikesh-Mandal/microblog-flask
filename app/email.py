@@ -15,10 +15,17 @@ def send_async_email(app, msg):
 #this function is used to send an email. 
 # It takes the subject, sender, recipients, text body, and HTML body of the email as arguments.
 #the Thread class is used to create a new thread that will run the send_async_email function.
-def send_email(subject, sender, recipients, text_body, html_body):
+def send_email(subject, sender, recipients, text_body, html_body, attachments=None, sync=False):
     msg = Message(subject, sender=sender, recipients=recipients)
     msg.body = text_body
     msg.html = html_body
+    if attachments:
+        for attachment in attachments:
+            msg.attach(*attachment)
+    if sync:
+        mail.send(msg)
+    else:
+        Thread(target=send_async_email, args=(app.get_current_object(), msg)).start()
     Thread(target=send_async_email, args=(app, msg)).start()
 
 #this function is used to send a password reset email to a user.

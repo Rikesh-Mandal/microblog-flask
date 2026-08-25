@@ -17,7 +17,8 @@ from config import Config
  #for i18n and l10n, flask_babel is a wrapper around the Babel library, which provides tools for internationalization and localization in Python applications
 from flask_babel import Babel, lazy_gettext as _l
 from flask import request #request object is used to access the incoming request data, such as form data, query parameters, headers, etc.
-
+from redis import Redis
+import rq
 
 def get_locale():
     # This function is used to determine the best match for the user's preferred language.
@@ -43,6 +44,8 @@ login.login_message = _l('Please log in to access this page.')
 mail = Mail(app) #instance of the mail extension
 moment = Moment(app) #instance of the moment extension
 babel = Babel(app, locale_selector=get_locale) #instance of the babel extension
+app.redis = Redis.from_url(app.config['REDIS_URL'])
+app.task_queue = rq.Queue('microblog-tasks', connection=app.redis)
 
 
 """

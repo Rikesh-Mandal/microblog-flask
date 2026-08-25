@@ -66,6 +66,7 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.2.2
 pytz==2026.3.post1
 PyYAML==6.0.3
+redis==4.4.4
 regex==2026.7.19
 requests==2.31.0
 rich==12.6.0

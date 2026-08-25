@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-23 19:29+0100\n"
+"POT-Creation-Date: 2026-08-25 02:23+0100\n"
 "PO-Revision-Date: 2026-08-07 02:17+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -18,11 +18,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: app/__init__.py:41
+#: app/__init__.py:42
 msgid "Please log in to access this page."
 msgstr "Por favor ingrese para acceder a esta página."
 
-#: app/email.py:28
+#: app/email.py:35
 msgid "[Microblog] Reset Your Password"
 msgstr "[Microblog] Nueva Contraseña"
 
@@ -157,14 +157,22 @@ msgstr "¡No te puedes dejar de seguir a tí mismo!"
 msgid "You are not following %(username)s."
 msgstr "No estás siguiendo a %(username)s."
 
-#: app/routes.py:244
+#: app/routes.py:245
 #, fuzzy
 msgid "Your message has been sent."
 msgstr "Tu contraseña ha sido cambiada."
 
-#: app/routes.py:246
+#: app/routes.py:247
 msgid "Send Message"
 msgstr "Enviar mensaje"
+
+#: app/routes.py:282
+msgid "An export task is currently in progress"
+msgstr "Una tarea de exportación esta en progreso"
+
+#: app/routes.py:284
+msgid "Exporting posts..."
+msgstr "Exportando artículos..."
 
 #: app/templates/404.html:4
 msgid "Not Found"
@@ -203,11 +211,11 @@ msgstr "Ingresar"
 msgid "Messages"
 msgstr ""
 
-#: app/templates/base.html:74
+#: app/templates/base.html:80
 msgid "Profile"
 msgstr "Perfil"
 
-#: app/templates/base.html:82
+#: app/templates/base.html:88
 msgid "Logout"
 msgstr "Salir"
 
@@ -216,11 +224,11 @@ msgstr "Salir"
 msgid "Hi, %(username)s!"
 msgstr "¡Hola, %(username)s!"
 
-#: app/templates/index.html:16 app/templates/user.html:44
+#: app/templates/index.html:16
 msgid "Newer posts"
 msgstr "Artículos siguientes"
 
-#: app/templates/index.html:21 app/templates/user.html:49
+#: app/templates/index.html:21
 msgid "Older posts"
 msgstr "Artículos previos"
 
@@ -254,37 +262,39 @@ msgstr "Artículos previos"
 msgid "Reset Your Password"
 msgstr "Nueva Contraseña"
 
-#: app/templates/user.html:8
-msgid "User"
-msgstr "Usuario"
+#: app/templates/send_message.html:5
+#, python-format
+msgid "Send Message to %(recipient)s"
+msgstr "Enviar Mensaje a %(recipient)s"
 
-#: app/templates/user.html:11 app/templates/user_popup.html:7
+#: app/templates/user_popup.html:7
 msgid "Last seen on"
 msgstr "Última visita"
 
-#: app/templates/user.html:13 app/templates/user_popup.html:9
+#: app/templates/user_popup.html:9
 #, python-format
 msgid "%(count)d followers"
 msgstr "%(count)d seguidores"
 
-#: app/templates/user.html:13 app/templates/user_popup.html:9
+#: app/templates/user_popup.html:9
 #, python-format
 msgid "%(count)d following"
 msgstr "siguiendo a %(count)d"
 
-#: app/templates/user.html:15
-msgid "Edit your profile"
-msgstr "Editar tu perfil"
-
-#: app/templates/user.html:20 app/templates/user_popup.html:15
+#: app/templates/user_popup.html:15
 msgid "Follow"
 msgstr "Seguir"
 
-#: app/templates/user.html:27 app/templates/user_popup.html:22
+#: app/templates/user_popup.html:22
 msgid "Unfollow"
 msgstr "Dejar de seguir"
 
-#: app/templates/user.html:32
-msgid "Send private message"
-msgstr "Enviar mensaje privado"
+#~ msgid "User"
+#~ msgstr "Usuario"
+
+#~ msgid "Edit your profile"
+#~ msgstr "Editar tu perfil"
+
+#~ msgid "Send private message"
+#~ msgstr "Enviar mensaje privado"
 
