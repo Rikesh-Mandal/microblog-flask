@@ -1,16 +1,20 @@
 from datetime import datetime, timezone
 from hashlib import md5
-from typing import Optional
+import json
 from time import time
-import jwt
+from typing import Optional
 import sqlalchemy as sa
 import sqlalchemy.orm as so
+from flask import current_app
 from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
-from app import db, login, app
-import json
-import rq
+import jwt
 import redis
+import rq
+from app import db, login
+
+
+
 
 
 #  representation of a many-to-many relationship requires the use of an auxiliary table called an association table.
@@ -22,11 +26,9 @@ followers = sa.Table(
     # For this table neither of the foreign keys will have unique values that can be used as a primary key on their own,
     # but the pair of foreign keys combined is going to be unique. For that reason both columns are marked as primary keys. 
     # This is called a compound primary key.
-    sa.Column('follower_id', sa.Integer, sa.ForeignKey('user.id'),
-              primary_key=True),
-    sa.Column('followed_id', sa.Integer, sa.ForeignKey('user.id'),
-              primary_key=True)
-)
+    sa.Column('follower_id', sa.Integer, sa.ForeignKey('user.id'),primary_key=True),
+    sa.Column('followed_id', sa.Integer, sa.ForeignKey('user.id'),primary_key=True)
+    )
 
 
 #UserMixin allows the safe implementation of Flask-login
@@ -37,10 +39,8 @@ class User(UserMixin,db.Model): #db.Model is a base class for all models from FL
 
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     username: so.Mapped[str] = so.mapped_column(sa.String(64), index=True, unique=True)
-    email: so.Mapped[str] = so.mapped_column(sa.String(120), index=True, unique=True)
-
-    #the 'Optional' helper allows the field to be nullable or empty
-    password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
+    email: so.Mapped[str] = so.mapped_column(sa.String(120), index=True, unique=True)    
+    password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))#the 'Optional' helper allows the field to be nullable or empty
     
 
     '''so.relationship()'. This is not an actual database field, but a high-level view of the relationship between users and posts
@@ -138,12 +138,12 @@ class User(UserMixin,db.Model): #db.Model is a base class for all models from FL
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(
             {'reset_password': self.id, 'exp': time() + expires_in},
-            app.config['SECRET_KEY'], algorithm='HS256')
+            current_app.config['SECRET_KEY'], algorithm='HS256')
 
     @staticmethod
     def verify_reset_password_token(token):
         try:
-            id = jwt.decode(token, app.config['SECRET_KEY'],
+            id = jwt.decode(token, current_app.config['SECRET_KEY'],
                             algorithms=['HS256'])['reset_password']
         except:
             return
@@ -166,7 +166,7 @@ class User(UserMixin,db.Model): #db.Model is a base class for all models from FL
         return n
 
     def launch_task(self, name, description, *args, **kwargs):
-        rq_job = app.task_queue.enqueue(f'app.tasks.{name}', self.id, *args, **kwargs)
+        rq_job = current_app.task_queue.enqueue(f'app.tasks.{name}', self.id, *args, **kwargs)
         task = Task(id=rq_job.get_id(), name=name, description=description, user=self)
         db.session.add(task)
         return task
@@ -250,7 +250,7 @@ class Task(db.Model):
 
     def get_rq_job(self):
         try:
-            rq_job = rq.job.Job.fetch(self.id, connection=app.redis)
+            rq_job = rq.job.Job.fetch(self.id, connection=current_app.redis)
         except(redis.exceptions.RedisError, rq.exceptions.NoSuchJobError):
             return None
         return rq_job

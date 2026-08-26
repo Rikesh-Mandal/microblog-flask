@@ -5,6 +5,7 @@ fields (BooleanField, RadioField, SelectField, TextAreaField, SubmitField, and o
 with appropriate Bootstrap classes and error handling.
 The quick_form macro renders the entire form by iterating over its fields
  and calling the form_field macro for each field. #}
+ 
 {% macro form_field(field, autofocus) %}
   {%- if field.type == 'BooleanField' %}
   <div class="form-check mb-3">

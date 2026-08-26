@@ -1,14 +1,14 @@
-import time
-from rq import get_current_job
-from app import app
-from app import db
-from app.models import Task, User, Post
-import sys
-import sqlalchemy as sa
-from app.email import send_email
-from flask import render_template
 import json
+import sys
+import time
+import sqlalchemy as sa
+from flask import render_template
+from rq import get_current_job
+from app import create_app, db
+from app.models import User, Post, Task
+from app.email import send_email
 
+app = create_app()
 app.app_context().push()
 
 def _set_task_progress(progress):

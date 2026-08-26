@@ -1,11 +1,13 @@
 # '''this is a top level script to let flask know where the instance of the app is
 # this script is what should be defined while letting flask know which instance of the app to run
 # e.g; export FLASK_APP=microblog.py'''
-from app import app, db
 import sqlalchemy as sa
 import sqlalchemy.orm as so
+from app import create_app, db
 from app.models import User, Post, Message, Notification, Task
-from app import cli  # Import the CLI commands from the app package
+
+
+app = create_app()
 
 
 # '''configuring flask shell context, which is a list of other symbols to pre-import

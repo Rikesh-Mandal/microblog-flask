@@ -2,7 +2,6 @@
 import os
 from dotenv import load_dotenv
 
-load_dotenv() #loading the environment variables
 
 '''
 __file__ returns the path to current python file
@@ -10,6 +9,7 @@ os.path.dirname - removes the filename and only returns the directory
 abspath returns the absolute path
 '''
 basedir = os.path.abspath(os.path.dirname(__file__))
+load_dotenv(os.path.join(basedir, '.env'))
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
@@ -32,3 +32,4 @@ class Config:
     LANGUAGES = ['en', 'es']  # English, Spanish, and German
 
     REDIS_URL = os.environ.get('REDIS_URL') or 'redis://'
+    LOG_TO_STDOUT = os.environ.get('LOG_TO_STDOUT') == '1'

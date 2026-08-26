@@ -4,12 +4,14 @@
 #  if this file is executed as the main program.
 
 import os
+from flask import Blueprint
 import click
-from app import app
 
+
+bp = Blueprint('cli', __name__, cli_group=None)
 
 # Flask relies on Click for all its command-line operations.
-@app.cli.group()
+@bp.cli.group()
 def translate():
     """Translation and localization commands."""
     pass
@@ -21,8 +23,7 @@ def init(lang):
     """Initialize a new language."""
     if os.system('pybabel extract -F babel.cfg -k _l -o messages.pot .'):
         raise RuntimeError('extract command failed')
-    if os.system(
-            'pybabel init -i messages.pot -d app/translations -l ' + lang):
+    if os.system('pybabel init -i messages.pot -d app/translations -l ' + lang):
         raise RuntimeError('init command failed')
     os.remove('messages.pot')
     
