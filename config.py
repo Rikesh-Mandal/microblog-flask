@@ -31,5 +31,10 @@ class Config:
     # supported languages for the application
     LANGUAGES = ['en', 'es']  # English, Spanish, and German
 
+    # elasticsearch config
+    ELASTICSEARCH_URL=os.environ.get('ELASTICSEARCH_URL')
+    ELASTICSEARCH_USERNAME=os.environ.get('ELASTICSEARCH_USERNAME')
+    ELASTICSEARCH_PASSWORD=os.environ.get('ELASTICSEARCH_PASSWORD')
+
     REDIS_URL = os.environ.get('REDIS_URL') or 'redis://'
     LOG_TO_STDOUT = os.environ.get('LOG_TO_STDOUT') == '1'

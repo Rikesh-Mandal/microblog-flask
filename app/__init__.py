@@ -16,6 +16,7 @@ from flask_babel import Babel, lazy_gettext as _l #for i18n and l10n, flask_babe
 from redis import Redis
 import rq
 from config import Config
+from elasticsearch import Elasticsearch
 
 
 # This function is used to determine the best match for the user's preferred language.
@@ -46,6 +47,12 @@ def create_app(config_class=Config):
     babel.init_app(app, locale_selector=get_locale)
     app.redis = Redis.from_url(app.config['REDIS_URL'])
     app.task_queue = rq.Queue('microblog-tasks', connection=app.redis)
+    app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']],
+                                      basic_auth=(
+                                          app.config['ELASTICSEARCH_USERNAME'],
+                                          app.config['ELASTICSEARCH_PASSWORD']
+                                      ),
+                                       verify_certs=False) if app.config['ELASTICSEARCH_URL'] else None
 
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
