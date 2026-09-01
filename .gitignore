@@ -86,6 +86,7 @@ messages.pot
 
 # certificates
 certs/
+certs/*.key
 certificates/
 *.crt  
 *.key

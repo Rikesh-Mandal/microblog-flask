@@ -11,19 +11,65 @@ services:
       - mysql-data:/var/lib/mysql
 
   microblog:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: microblog:latest
     container_name: microblog
     ports:
-      - 8000:8000
+      - "8000:8000"
+
+    volumes:
+      - ./certs/ca.crt:/certs/ca.crt:ro
+
     environment:
       SECRET_KEY: ${SECRET_KEY}
+
       DATABASE_URL: mysql+pymysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}
+
       MAIL_SERVER: ${MAIL_SERVER}
       MAIL_PORT: ${MAIL_PORT}
       MAIL_USE_TLS: ${MAIL_USE_TLS}
       MAIL_USERNAME: ${MAIL_USERNAME}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
 
+      ELASTICSEARCH_URL: ${ELASTICSEARCH_URL}
+      ELASTICSEARCH_USERNAME: ${ELASTICSEARCH_USERNAME}
+      ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD}
+      ELASTICSEARCH_CA_CERT: ${ELASTICSEARCH_CA_CERT}
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.5.2
+    container_name: es01
+
+    environment:
+      - discovery.type=single-node
+
+      # Enable Elasticsearch security
+      - xpack.security.enabled=true
+
+      # Enable HTTPS for the HTTP API
+      - xpack.security.http.ssl.enabled=true
+
+      # Our custom certificate
+      - xpack.security.http.ssl.key=/usr/share/elasticsearch/config/certs/elasticsearch.key
+      - xpack.security.http.ssl.certificate=/usr/share/elasticsearch/config/certs/elasticsearch.crt
+      - xpack.security.http.ssl.certificate_authorities=/usr/share/elasticsearch/config/certs/ca.crt
+
+    ports:
+      - "9200:9200"
+
+    volumes:
+      # CUSTOM TLS CERTIFICATES
+      - ./certs:/usr/share/elasticsearch/config/certs:ro
+
+      # EXISTING ELASTICSEARCH DATA — DO NOT DELETE
+      - elasticsearch-data:/usr/share/elasticsearch/data
+
 volumes:
+  # EXISTING MYSQL DATA — DO NOT DELETE
   mysql-data:
     external: true
+
+  # EXISTING ELASTICSEARCH DATA — DO NOT DELETE
+  elasticsearch-data:

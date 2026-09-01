@@ -52,7 +52,7 @@ def create_app(config_class=Config):
                                           app.config['ELASTICSEARCH_USERNAME'],
                                           app.config['ELASTICSEARCH_PASSWORD']
                                       ),
-                                       verify_certs=False) if app.config['ELASTICSEARCH_URL'] else None
+                                       ca_certs=app.config['ELASTICSEARCH_CA_CERT']) if app.config['ELASTICSEARCH_URL'] else None
 
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
