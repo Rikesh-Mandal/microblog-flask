@@ -1,5 +1,5 @@
 from libretranslatepy import LibreTranslateAPI
-
+from flask import current_app
 
 def translate(text: str, source_lang: str, target_lang: str) -> str:
     """
@@ -11,7 +11,7 @@ def translate(text: str, source_lang: str, target_lang: str) -> str:
     :return: The translated text.
     """
     try:
-        lt = LibreTranslateAPI("http://localhost:5000")  # Adjust the URL if your LibreTranslate server is running elsewhere
+        lt = LibreTranslateAPI(current_app.config['LIBRETRANSLATE_URL'])  # Adjust the URL if your LibreTranslate server is running elsewhere
         translated_text = lt.translate(text, source=source_lang, target=target_lang)
         return translated_text
     except Exception as e:

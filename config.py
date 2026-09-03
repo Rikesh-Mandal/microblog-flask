@@ -37,5 +37,7 @@ class Config:
     ELASTICSEARCH_PASSWORD=os.environ.get('ELASTICSEARCH_PASSWORD')
     ELASTICSEARCH_CA_CERT =os.environ.get('ELASTICSEARCH_CA_CERT')
 
-    REDIS_URL = os.environ.get('REDIS_URL') or 'redis://'
+    LIBRETRANSLATE_URL=os.environ.get('LIBRETRANSLATE_URL')
+
+    # REDIS_URL = os.environ.get('REDIS_URL') or 'redis://'
     LOG_TO_STDOUT = os.environ.get('LOG_TO_STDOUT') == '1'

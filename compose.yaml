@@ -38,6 +38,8 @@ services:
       ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD}
       ELASTICSEARCH_CA_CERT: ${ELASTICSEARCH_CA_CERT}
 
+      LIBRETRANSLATE_URL: ${LIBRETRANSLATE_URL}
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.5.2
     container_name: es01
@@ -66,6 +68,21 @@ services:
       # EXISTING ELASTICSEARCH DATA — DO NOT DELETE
       - elasticsearch-data:/usr/share/elasticsearch/data
 
+  libretranslate:
+    image: libretranslate/libretranslate:v1.9.6
+    container_name: libretranslate
+    
+    command:
+      - --load-only
+      - en,es,de
+    
+    volumes:
+      - libretranslate-models:/home/libretranslate/.local
+    
+    ports:
+      - 5000:5000
+      
+
 volumes:
   # EXISTING MYSQL DATA — DO NOT DELETE
   mysql-data:
@@ -73,3 +90,6 @@ volumes:
 
   # EXISTING ELASTICSEARCH DATA — DO NOT DELETE
   elasticsearch-data:
+
+  # LANGUAGE MODELS FOR LIBRETRANSLATE
+  libretranslate-models:

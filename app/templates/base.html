@@ -74,19 +74,12 @@
         </div>
       </div>
     </nav>
-     <div class="container-fluid">
-      {% if current_user.is_authenticated %}
-        {% with tasks = current_user.get_tasks_in_progress() %}
-          {% if tasks %}
-            {% for task in tasks %}
-              <div class="alert alert-success" role="alert"> 
-                {{ task.description }}
-              <span id="{{ task.id }}-progress">{{ task.get_progress() }}</span>%
-               </div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-      {% endif %}
+    
+
+
+
+
+    
 
     <div class="container-fluid">
       {% with messages = get_flashed_messages() %} 
@@ -106,6 +99,14 @@
     {{ moment.include_moment() }} {{ moment.lang(g.locale) }}
 
     <script>
+      setTimeout(() => {
+        document.querySelectorAll('.alert-info').forEach(message => {
+          message.remove();
+        })
+
+      }, 4000);
+
+
       async function translate(sourceElem, destElem, sourceLang, destLang) {
         document.getElementById(destElem).innerHTML =
           `<img src="{{ url_for('static', filename='loading.gif') }}">`;

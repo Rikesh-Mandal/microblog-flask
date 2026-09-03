@@ -5,12 +5,12 @@ from time import time
 from typing import Optional
 import sqlalchemy as sa
 import sqlalchemy.orm as so
-from flask import current_app
+from flask import current_app, url_for
 from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 import jwt
-import redis
-import rq
+# import redis
+# import rq
 from app import db, login
 from app.search import add_to_index, remove_from_index, query_index
 
@@ -97,7 +97,7 @@ class User(UserMixin,db.Model): #db.Model is a base class for all models from FL
     last_seen: so.Mapped[Optional[datetime]] = so.mapped_column(default=lambda: datetime.now(timezone.utc)) 
     last_message_read_time: so.Mapped[Optional[datetime]]
     notifications: so.WriteOnlyMapped['Notification'] = so.relationship(back_populates='user')
-    tasks: so.WriteOnlyMapped['Task'] = so.relationship(back_populates='user')
+    # tasks: so.WriteOnlyMapped['Task'] = so.relationship(back_populates='user')
 
     #the following and followers fields are initialized as relationships that use the association table to link users together.
     #asscociation table is passed to the secondary argument, and the primaryjoin and secondaryjoin arguments specify how the join should be done.
@@ -152,13 +152,11 @@ class User(UserMixin,db.Model): #db.Model is a base class for all models from FL
         return db.session.scalar(query) is not None
 
     def followers_count(self):
-        query = sa.select(sa.func.count()).select_from(
-            self.followers.select().subquery())
+        query = sa.select(sa.func.count()).select_from(self.followers.select().subquery())
         return db.session.scalar(query)
 
     def following_count(self):
-        query = sa.select(sa.func.count()).select_from(
-            self.following.select().subquery())
+        query = sa.select(sa.func.count()).select_from(self.following.select().subquery())
         return db.session.scalar(query)
 
     def following_posts(self):
@@ -178,23 +176,20 @@ class User(UserMixin,db.Model): #db.Model is a base class for all models from FL
     
     # generates a token for resetting the password, which expires in 600 seconds (10 minutes) by default
     def get_reset_password_token(self, expires_in=600):
-        return jwt.encode(
-            {'reset_password': self.id, 'exp': time() + expires_in},
+        return jwt.encode({'reset_password': self.id, 'exp': time() + expires_in},
             current_app.config['SECRET_KEY'], algorithm='HS256')
 
     @staticmethod
     def verify_reset_password_token(token):
         try:
-            id = jwt.decode(token, current_app.config['SECRET_KEY'],
-                            algorithms=['HS256'])['reset_password']
+            id = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])['reset_password']
         except:
             return
         return db.session.get(User, id)
 
     def unread_message_count(self):
         last_read_time = self.last_message_read_time or datetime(1900, 1, 1)
-        query = sa.select(Message).where(Message.recipient == self,
-                                         Message.timestamp > last_read_time)
+        query = sa.select(Message).where(Message.recipient == self, Message.timestamp > last_read_time)
         return db.session.scalar(sa.select(sa.func.count()).select_from(query.subquery()))
 
     # delete old notification with this name
@@ -207,19 +202,50 @@ class User(UserMixin,db.Model): #db.Model is a base class for all models from FL
         db.session.add(n)
         return n
 
-    def launch_task(self, name, description, *args, **kwargs):
-        rq_job = current_app.task_queue.enqueue(f'app.tasks.{name}', self.id, *args, **kwargs)
-        task = Task(id=rq_job.get_id(), name=name, description=description, user=self)
-        db.session.add(task)
-        return task
-
-    def get_tasks_in_progress(self):
-        query = self.tasks.select().where(Task.complete == False)
-        return db.session.scalars(query)
-
-    def get_task_in_progress(self, name):
-        query = self.tasks.select().where(Task.name == name, Task.complete == False)
+    def posts_count(self):
+        query = sa.select(sa.func.count()).select_from(self.posts.select().subquery())
         return db.session.scalar(query)
+
+    def to_dict(self, include_email=False):
+        data={
+            'id': self.id,
+            'username': self.username,
+            'last_seen': self.last_seen.replace(tzinfo=timezone.utc).isoformat() if self.last_seen else None,
+            'about_me': self.about_me,
+            'post_count': self.posts_count(),
+            'follower_count': self.followers_count(),
+            'following_count': self.following_count(),
+            '_links':{
+                'self': url_for('api.get_user', id=self.id),
+                'followers': url_for('api.get_followers', id=self.id),
+                'following': url_for('api.get_following', id=self.id),
+                'avatar': self.avatar(128)
+            }
+        }
+        if include_email:
+            data['email'] = self.email
+        return data
+
+    def from_dict(self, data, new_user=False):
+        for field in ['username', 'email', 'about_me']:
+            if field in data:
+                setattr(self, field, data[field])
+            if new_user and 'password' in data:
+                self.set_password(data['password'])
+
+    # def launch_task(self, name, description, *args, **kwargs):
+    #     rq_job = current_app.task_queue.enqueue(f'app.tasks.{name}', self.id, *args, **kwargs)
+    #     task = Task(id=rq_job.get_id(), name=name, description=description, user=self)
+    #     db.session.add(task)
+    #     return task
+
+    # def get_tasks_in_progress(self):
+    #     query = self.tasks.select().where(Task.complete == False)
+    #     return db.session.scalars(query)
+
+    # def get_task_in_progress(self, name):
+    #     query = self.tasks.select().where(Task.name == name, Task.complete == False)
+    #     return db.session.scalar(query)
 
 '''
 Flask-Login keeps track of the logged in user by storing its unique identifier in Flask's user session
@@ -279,23 +305,23 @@ class Notification(db.Model):
         return json.loads(str(self.payload_json))
 
 
-class Task(db.Model):
-    id: so.Mapped[int] = so.mapped_column(sa.String(26), primary_key=True)
-    name: so.Mapped[str] = so.mapped_column(sa.String(128), index=True)
-    description: so.Mapped[Optional[str]] = so.mapped_column(sa.String(128))
-    user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id))
-    complete: so.Mapped[bool] = so.mapped_column(default=False)
+# class Task(db.Model):
+#     id: so.Mapped[int] = so.mapped_column(sa.String(26), primary_key=True)
+#     name: so.Mapped[str] = so.mapped_column(sa.String(128), index=True)
+#     description: so.Mapped[Optional[str]] = so.mapped_column(sa.String(128))
+#     user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id))
+#     complete: so.Mapped[bool] = so.mapped_column(default=False)
 
-    user: so.Mapped[User] = so.relationship(back_populates='tasks')
+#     user: so.Mapped[User] = so.relationship(back_populates='tasks')
 
-    def get_rq_job(self):
-        try:
-            rq_job = rq.job.Job.fetch(self.id, connection=current_app.redis)
-        except(redis.exceptions.RedisError, rq.exceptions.NoSuchJobError):
-            return None
-        return rq_job
+    # def get_rq_job(self):
+    #     try:
+    #         rq_job = rq.job.Job.fetch(self.id, connection=current_app.redis)
+    #     except(redis.exceptions.RedisError, rq.exceptions.NoSuchJobError):
+    #         return None
+    #     return rq_job
 
-    def get_progress(self):
-        job = self.get_rq_job()
-        return job.meta.get('progress', 0) if job is None else 100
+    # def get_progress(self):
+    #     job = self.get_rq_job()
+    #     return job.meta.get('progress', 0) if job is None else 100
 

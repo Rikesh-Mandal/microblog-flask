@@ -13,8 +13,8 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from flask_moment import Moment #for date and time formatting, flask_moment is a wrapper around moment.js, a JavaScript library for date and time formatting
 from flask_babel import Babel, lazy_gettext as _l #for i18n and l10n, flask_babel is a wrapper around the Babel library, which provides tools for internationalization and localization in Python applications
-from redis import Redis
-import rq
+# from redis import Redis
+# import rq
 from config import Config
 from elasticsearch import Elasticsearch
 
@@ -45,8 +45,8 @@ def create_app(config_class=Config):
     mail.init_app(app)
     moment.init_app(app)
     babel.init_app(app, locale_selector=get_locale)
-    app.redis = Redis.from_url(app.config['REDIS_URL'])
-    app.task_queue = rq.Queue('microblog-tasks', connection=app.redis)
+    # app.redis = Redis.from_url(app.config['REDIS_URL'])
+    # app.task_queue = rq.Queue('microblog-tasks', connection=app.redis)
     app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']],
                                       basic_auth=(
                                           app.config['ELASTICSEARCH_USERNAME'],
@@ -66,6 +66,8 @@ def create_app(config_class=Config):
     from app.cli import bp as cli_bp
     app.register_blueprint(cli_bp)
 
+    from app.api import bp as api_bp
+    app.register_blueprint(api_bp, url_prefix='/api')
 
     # """Flask uses Python's logging package to write its logs, 
     # and this package already has the ability to send logs by email. 
