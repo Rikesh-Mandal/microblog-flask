@@ -18,7 +18,7 @@ class Config:
     database_url = os.environ.get('DATABASE_URL')
     if database_url and database_url.startswith('mysql://'):
         database_url = database_url.replace('mysql://', 
-                                            'mysql_pymysql://',
+                                            'mysql+pymysql://',
                                               1)
     SQLALCHEMY_DATABASE_URI = database_url or 'sqlite:///' + os.path.join(basedir, 'db', 'app.db')
 
