@@ -13,8 +13,14 @@ load_dotenv(os.path.join(basedir, '.env'))
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'db', 'app.db')
+
+    # makes sure the pymysql driver is used 
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url and database_url.startswith('mysql://'):
+        database_url = database_url.replace('mysql://', 
+                                            'mysql_pymysql://',
+                                              1)
+    SQLALCHEMY_DATABASE_URI = database_url or 'sqlite:///' + os.path.join(basedir, 'db', 'app.db')
 
     # Email server configuration for sending error logs via email
     MAIL_SERVER = os.environ.get('MAIL_SERVER')
