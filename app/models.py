@@ -13,7 +13,8 @@ import jwt
 # import rq
 from app import db, login
 from app.search import add_to_index, remove_from_index, query_index
-
+from datetime import timedelta
+import secrets
 
 
 
@@ -73,8 +74,29 @@ class SearchableMixin(object):
 db.event.listen(db.session, 'before_commit', SearchableMixin.before_commit)
 db.event.listen(db.session, 'after_commit', SearchableMixin.after_commit)
 
+class PaginatedAPIMixin(object):
+    @staticmethod
+    def to_collection_dict(query, page, per_page, endpoint, **kwargs):
+        resources = db.paginate(query, page=page, per_page=per_page, error_out=False)
+        data = {
+            'items': [item.to_dict() for item in resources.items],
+            '_meta': {
+                'page': page,
+                'per_page': per_page,
+                'total_pages': resources.pages,
+                'total_items': resources.total
+            },
+            '_links':{
+                'self': url_for(endpoint, page=page, per_page=per_page, **kwargs),
+                'next': url_for(endpoint, page=page+1, per_page=per_page, **kwargs) if resources.has_next else None,
+                'prev': url_for(endpoint, page=page-1, per_page=per_page, **kwargs) if resources.has_prev else None
+            }
+
+        }
+        return data
+
 #UserMixin allows the safe implementation of Flask-login
-class User(UserMixin,db.Model): #db.Model is a base class for all models from FLASK-SQLAlchemy
+class User(PaginatedAPIMixin,UserMixin,db.Model): #db.Model is a base class for all models from FLASK-SQLAlchemy
 
     #so.Mapped deflines the field type and also makes values required or non-nullable 
     # 1st portion defines the field and second portion defines the column
@@ -98,7 +120,8 @@ class User(UserMixin,db.Model): #db.Model is a base class for all models from FL
     last_message_read_time: so.Mapped[Optional[datetime]]
     notifications: so.WriteOnlyMapped['Notification'] = so.relationship(back_populates='user')
     # tasks: so.WriteOnlyMapped['Task'] = so.relationship(back_populates='user')
-
+    token: so.Mapped[Optional[str]] = so.mapped_column(sa.String(32), index=True, unique=True)
+    token_expiration: so.Mapped[Optional[datetime]]
     #the following and followers fields are initialized as relationships that use the association table to link users together.
     #asscociation table is passed to the secondary argument, and the primaryjoin and secondaryjoin arguments specify how the join should be done.
     following: so.WriteOnlyMapped['User'] = so.relationship(
@@ -230,9 +253,28 @@ class User(UserMixin,db.Model): #db.Model is a base class for all models from FL
         for field in ['username', 'email', 'about_me']:
             if field in data:
                 setattr(self, field, data[field])
-            if new_user and 'password' in data:
-                self.set_password(data['password'])
+        if new_user and 'password' in data:
+            self.set_password(data['password'])
 
+    def get_token(self,expires_in=3600):
+        now = datetime.now(timezone.utc)
+        if self.token and self.token_expiration.replace(tzinfo=timezone.utc) > now + timedelta(seconds=60):
+            return self.token
+        self.token = secrets.token_hex(16)
+        self.token_expiration = now + timedelta(seconds=expires_in)
+        db.session.add(self)
+        return self.token
+
+    def revoke_token(self):
+        self.token_expiration = datetime.now(timezone.utc) - timedelta(seconds=1)
+
+    @staticmethod
+    def check_token(token):
+        user = db.session.scalar(sa.select(User).where(User.token == token))
+        if user is None or user.token_expiration.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
+            return None
+        return user
+    
     # def launch_task(self, name, description, *args, **kwargs):
     #     rq_job = current_app.task_queue.enqueue(f'app.tasks.{name}', self.id, *args, **kwargs)
     #     task = Task(id=rq_job.get_id(), name=name, description=description, user=self)
