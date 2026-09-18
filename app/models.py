@@ -351,15 +351,15 @@ class Message(PaginatedAPIMixin,db.Model):
     def to_dict(self):
         data = {
             'message_id': self.id,
-            'author':{
-                'author_name': self.author.username,
-                'author_id': self.author.id,
+            'sender':{
+                'name': self.author.username,
+                'id': self.sender_id,
                 'last_seen': self.author.last_seen
             },
             'recipient':{
-                'recipient_name': self.recipient.username,
-                'recipient_id': self.recipient.id,
-                'recipient_seen': self.recipient.last_seen
+                'name': self.recipient.username,
+                'id': self.recipient.id,
+                'last_seen': self.recipient.last_seen
             },
             'body': self.body,
             'timestamp': self.timestamp
