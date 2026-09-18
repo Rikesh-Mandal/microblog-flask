@@ -3,7 +3,7 @@ from app.models import User
 from app import db
 import sqlalchemy as sa
 from flask import request, url_for
-from app.api.errors import bad_request
+from app.api.errors import bad_request, error_response
 from flask import abort
 from app.api.auth import token_auth
 
@@ -37,6 +37,8 @@ def get_following(id):
 
 @bp.route('/users', methods = ['POST'])
 def create_user():
+    if not request.is_json:
+        return error_response(415, 'Content-Type must be application/json')
     data = request.get_json()
     if 'username' not in data or 'email' not in data or 'password' not in data:
         return bad_request('Must include username, email, and password fields')
@@ -57,6 +59,8 @@ def update_user(id):
     if token_auth.current_user().id != id:
         abort(403)
     user = db.get_or_404(User, id)
+    if not request.is_json:
+        return error_response(415, 'Content-Type must be application/json')
     data = request.get_json()
     if 'username' in data and data['username'] != user.username and \
         db.session.scalar(sa.select(User).where(User.username == data['username'])):

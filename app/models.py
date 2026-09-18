@@ -301,37 +301,70 @@ def load_user(id):
     return db.session.get(User, int(id))#the id that is passed by flask-login is a string hence it needs to be converted
 
 
-class Post(SearchableMixin,db.Model):
+class Post(PaginatedAPIMixin, SearchableMixin,db.Model):
     __searchable__ = ['body']
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     body: so.Mapped[str] = so.mapped_column(sa.String(140))
     # When you pass a function as a default, SQLAlchemy will set the field to the value returned by the function.
     timestamp: so.Mapped[datetime] = so.mapped_column(index=True, default=lambda: datetime.now(timezone.utc))
+    updated_at: so.Mapped[Optional[datetime]] = so.mapped_column(default=None)
     user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id), index=True) #refers to the id in the User table
     author: so.Mapped[User] = so.relationship(back_populates='posts')
     language: so.Mapped[Optional[str]] = so.mapped_column(sa.String(5))
+
     def __repr__(self):
         return f'<Post {self.body}>'
 
+    def to_dict(self):
+        data = {
+            'post_id': self.id,
+            'author':{
+                'user_id': self.author.id,
+                'author_name': self.author.username,
+                'last_seen': self.author.last_seen
+            },
+            'timestamp': self.timestamp,
+            'updated_at': self.updated_at,
+            'body': self.body
+        }
+        return data
 
-class Message(db.Model):
+    def from_dict(self, data):
+        for field in ['body']:
+            if field in data:
+                setattr(self, field, data[field])
+                
+
+
+class Message(PaginatedAPIMixin,db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    sender_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id),
-                                                 index=True)
-    recipient_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id),
-                                                    index=True)
+    sender_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id),index=True)
+    recipient_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id),index=True)
     body: so.Mapped[str] = so.mapped_column(sa.String(140))
-    timestamp: so.Mapped[datetime] = so.mapped_column(
-        index=True, default=lambda: datetime.now(timezone.utc))
-    author: so.Mapped[User] = so.relationship(
-        foreign_keys='Message.sender_id',
-        back_populates='messages_sent')
-    recipient: so.Mapped[User] = so.relationship(
-        foreign_keys='Message.recipient_id',
-        back_populates='messages_received')
+    timestamp: so.Mapped[datetime] = so.mapped_column(index=True, default=lambda: datetime.now(timezone.utc))
+    author: so.Mapped[User] = so.relationship(foreign_keys='Message.sender_id', back_populates='messages_sent')
+    recipient: so.Mapped[User] = so.relationship(foreign_keys='Message.recipient_id', back_populates='messages_received')
 
     def __repr__(self):
         return '<Message {}>'.format(self.body)
+
+    def to_dict(self):
+        data = {
+            'message_id': self.id,
+            'author':{
+                'author_name': self.author.username,
+                'author_id': self.author.id,
+                'last_seen': self.author.last_seen
+            },
+            'recipient':{
+                'recipient_name': self.recipient.username,
+                'recipient_id': self.recipient.id,
+                'recipient_seen': self.recipient.last_seen
+            },
+            'body': self.body,
+            'timestamp': self.timestamp
+        }
+        return data
 
 
 class Notification(db.Model):
