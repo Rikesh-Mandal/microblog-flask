@@ -7,11 +7,15 @@ from app.api.errors import bad_request, error_response
 from flask import abort
 from app.api.auth import token_auth
 
+
+#get user by id
 @bp.route('/users/<int:id>', methods = ['GET'])
 @token_auth.login_required
 def get_user(id):
     return db.get_or_404(User, id).to_dict()
 
+
+#get all users
 @bp.route('/users', methods = ['GET'])
 @token_auth.login_required
 def get_users():
@@ -19,6 +23,8 @@ def get_users():
     per_page = min(request.args.get('per_page', 10, type=int), 100)
     return User.to_collection_dict(sa.select(User), page, per_page, 'api.get_users')
 
+
+#get user's followers
 @bp.route('/users/<int:id>/followers', methods = ['GET'])
 @token_auth.login_required
 def get_followers(id):
@@ -27,6 +33,8 @@ def get_followers(id):
     per_page = min(request.args.get('per_page', 10, type=int), 100)
     return User.to_collection_dict(user.followers.select(), page, per_page, 'api.get_followers', id=id)
 
+
+#get user's followings
 @bp.route('/users/<int:id>/following', methods = ['GET'])
 @token_auth.login_required
 def get_following(id):
@@ -35,6 +43,8 @@ def get_following(id):
     per_page = min(request.args.get('per_page', 10, type=int), 100)
     return User.to_collection_dict(user.following.select(), page, per_page, 'api.get_following', id=id)
 
+
+#create a user
 @bp.route('/users', methods = ['POST'])
 def create_user():
     if not request.is_json:
@@ -53,6 +63,7 @@ def create_user():
     return user.to_dict(), 201, {'Location': url_for('api.get_user', id=user.id)}
 
 
+#update a user
 @bp.route('/users/<int:id>', methods=['PUT'])
 @token_auth.login_required
 def update_user(id):

@@ -5,6 +5,7 @@ from app.models import Message
 from flask import request, url_for
 import sqlalchemy as sa
 
+#get sent messages by a user
 @bp.route('/messages/sent', methods=['GET'])
 @token_auth.login_required
 def get_sent_messages():
@@ -13,6 +14,8 @@ def get_sent_messages():
     return Message.to_collection_dict(sa.select(Message).where(Message.sender_id == token_auth.current_user().id),
                                        page, per_page, 'api.get_sent_messages')
 
+
+#get messages received by a user
 @bp.route('/messages/received', methods=['GET'])
 @token_auth.login_required
 def get_received_messages():

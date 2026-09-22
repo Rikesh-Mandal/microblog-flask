@@ -1,0 +1,1375 @@
+openapi: 3.0.3
+
+info:
+  title: Microblog API
+  version: 1.0.0
+  description: >
+    REST API for the Microblog application.
+    The API provides endpoints for users, posts, followers,
+    following relationships, private messages and
+    token-based authentication.
+
+servers:
+  - url: https://microblog-flask-production.up.railway.app
+    description: Production server
+
+  - url: http://localhost:5000
+    description: Local development server
+
+
+tags:
+  - name: Users
+    description: User management and user relationships
+
+  - name: Posts
+    description: Post creation, retrieval, updating and deletion
+
+  - name: Messages
+    description: Sent and received private messages
+
+  - name: Authentication
+    description: Authentication token management
+
+
+paths:
+
+  # =========================================================
+  # USERS
+  # =========================================================
+
+  /api/users:
+
+    get:
+      tags:
+        - Users
+
+      summary: Get all users
+
+      description: >
+        Returns a paginated collection of users.
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+
+      responses:
+
+        '200':
+          description: Paginated list of users returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCollection'
+
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+    post:
+      tags:
+        - Users
+
+      summary: Create a user
+
+      description: >
+        Creates a new user account.
+        Username and email must be unique.
+
+      requestBody:
+        required: true
+
+        content:
+          application/json:
+
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+
+            example:
+              username: rikesh
+              email: rikesh@example.com
+              password: password123
+              about_me: Software developer interested in AI.
+
+      responses:
+
+        '201':
+          description: User created successfully.
+
+          headers:
+            Location:
+              description: URL of the newly created user.
+              schema:
+                type: string
+                example: /api/users/1
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+        '400':
+          description: >
+            Required fields are missing, the username is already
+            taken or the email address is already in use.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '415':
+          description: Content-Type must be application/json.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+  /api/users/{id}:
+
+    get:
+      tags:
+        - Users
+
+      summary: Get a user
+
+      description: >
+        Retrieves a user using their unique user ID.
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+
+        - name: id
+          in: path
+          required: true
+          description: ID of the user to retrieve.
+          schema:
+            type: integer
+            minimum: 1
+
+      responses:
+
+        '200':
+          description: User retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+    put:
+      tags:
+        - Users
+
+      summary: Update a user
+
+      description: >
+        Updates an existing user account.
+        The authenticated user can only update their own account.
+        If the username or email is changed, the new value must
+        not already belong to another user.
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+
+        - name: id
+          in: path
+          required: true
+          description: ID of the user to update.
+          schema:
+            type: integer
+            minimum: 1
+
+      requestBody:
+        required: true
+
+        content:
+          application/json:
+
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+
+            example:
+              username: rikesh_new
+              email: new@example.com
+              about_me: Updated profile information.
+
+      responses:
+
+        '200':
+          description: User updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+        '400':
+          description: >
+            The supplied username or email is already being
+            used by another user.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '403':
+          description: >
+            The authenticated user is not allowed to update
+            this user account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '415':
+          description: Content-Type must be application/json.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+  /api/users/{id}/followers:
+
+    get:
+      tags:
+        - Users
+
+      summary: Get a user's followers
+
+      description: >
+        Returns a paginated collection of users who follow
+        the specified user.
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+
+        - name: id
+          in: path
+          required: true
+          description: ID of the user.
+          schema:
+            type: integer
+            minimum: 1
+
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+
+      responses:
+
+        '200':
+          description: Followers returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCollection'
+
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+  /api/users/{id}/following:
+
+    get:
+      tags:
+        - Users
+
+      summary: Get users followed by a user
+
+      description: >
+        Returns a paginated collection of users that the
+        specified user is following.
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+
+        - name: id
+          in: path
+          required: true
+          description: ID of the user.
+          schema:
+            type: integer
+            minimum: 1
+
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+
+      responses:
+
+        '200':
+          description: Following list returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCollection'
+
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+  # =========================================================
+  # POSTS
+  # =========================================================
+
+  /api/posts:
+
+    get:
+      tags:
+        - Posts
+
+      summary: Get all posts
+
+      description: >
+        Returns a paginated collection of posts.
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+
+      responses:
+
+        '200':
+          description: Paginated list of posts returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostCollection'
+
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+    post:
+      tags:
+        - Posts
+
+      summary: Create a post
+
+      description: >
+        Creates a new post belonging to the currently
+        authenticated user.
+
+      security:
+        - bearerAuth: []
+
+      requestBody:
+        required: true
+
+        content:
+          application/json:
+
+            schema:
+              $ref: '#/components/schemas/PostCreate'
+
+            example:
+              body: Hello, this is my first post.
+
+      responses:
+
+        '201':
+          description: Post created successfully.
+
+          headers:
+            Location:
+              description: URL of the newly created post.
+              schema:
+                type: string
+                example: /api/posts/15
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+
+        '400':
+          description: >
+            The request body is missing or does not contain
+            the body field.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '415':
+          description: Content-Type must be application/json.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+  /api/posts/{id}:
+
+    get:
+      tags:
+        - Posts
+
+      summary: Get a post
+
+      description: >
+        Retrieves a single post using its unique post ID.
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+
+        - name: id
+          in: path
+          required: true
+          description: ID of the post to retrieve.
+          schema:
+            type: integer
+            minimum: 1
+
+      responses:
+
+        '200':
+          description: Post retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '404':
+          description: Post not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+    put:
+      tags:
+        - Posts
+
+      summary: Update a post
+
+      description: >
+        Updates an existing post.
+        Only the user who created the post is allowed
+        to update it.
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+
+        - name: id
+          in: path
+          required: true
+          description: ID of the post to update.
+          schema:
+            type: integer
+            minimum: 1
+
+      requestBody:
+        required: true
+
+        content:
+          application/json:
+
+            schema:
+              $ref: '#/components/schemas/PostUpdate'
+
+            example:
+              body: This is my updated post.
+
+      responses:
+
+        '200':
+          description: Post updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+
+        '400':
+          description: >
+            The request body is missing or does not contain
+            the body field.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '403':
+          description: >
+            The authenticated user does not own this post.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '404':
+          description: Post not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '415':
+          description: Content-Type must be application/json.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+    delete:
+      tags:
+        - Posts
+
+      summary: Delete a post
+
+      description: >
+        Deletes an existing post.
+        Only the user who created the post is allowed
+        to delete it.
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+
+        - name: id
+          in: path
+          required: true
+          description: ID of the post to delete.
+          schema:
+            type: integer
+            minimum: 1
+
+      responses:
+
+        '204':
+          description: Post deleted successfully.
+
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '403':
+          description: >
+            The authenticated user does not own this post.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '404':
+          description: Post not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+  /api/users/{user_id}/posts:
+
+    get:
+      tags:
+        - Posts
+
+      summary: Get a user's posts
+
+      description: >
+        Returns a paginated collection of posts belonging
+        to the specified user.
+        The authenticated user's ID must match the requested
+        user ID.
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+
+        - name: user_id
+          in: path
+          required: true
+          description: ID of the user whose posts are requested.
+          schema:
+            type: integer
+            minimum: 1
+
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+
+      responses:
+
+        '200':
+          description: User posts returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostCollection'
+
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '403':
+          description: >
+            The authenticated user's ID does not match
+            the requested user ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+        '404':
+          description: User not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+  # =========================================================
+  # MESSAGES
+  # =========================================================
+
+  /api/messages/sent:
+
+    get:
+      tags:
+        - Messages
+
+      summary: Get sent messages
+
+      description: >
+        Returns a paginated collection of messages sent
+        by the currently authenticated user.
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+
+      responses:
+
+        '200':
+          description: Sent messages returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageCollection'
+
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+  /api/messages/received:
+
+    get:
+      tags:
+        - Messages
+
+      summary: Get received messages
+
+      description: >
+        Returns a paginated collection of messages received
+        by the currently authenticated user.
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+
+      responses:
+
+        '200':
+          description: Received messages returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageCollection'
+
+        '401':
+          description: Authentication required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+  # =========================================================
+  # AUTHENTICATION
+  # =========================================================
+
+  /api/tokens:
+
+    post:
+      tags:
+        - Authentication
+
+      summary: Get an authentication token
+
+      description: >
+        Authenticates a user using HTTP Basic Authentication.
+        A valid username and password are supplied through
+        the Authorization header and a token is returned.
+
+      security:
+        - basicAuth: []
+
+      responses:
+
+        '200':
+          description: Authentication successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+
+        '401':
+          description: Invalid username or password.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+    delete:
+      tags:
+        - Authentication
+
+      summary: Revoke an authentication token
+
+      description: >
+        Revokes the authentication token belonging to
+        the currently authenticated user.
+
+      security:
+        - bearerAuth: []
+
+      responses:
+
+        '204':
+          description: Token revoked successfully.
+
+        '401':
+          description: Authentication required or token is invalid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
+components:
+
+  # =========================================================
+  # AUTHENTICATION
+  # =========================================================
+
+  securitySchemes:
+
+    basicAuth:
+      type: http
+      scheme: basic
+      description: >
+        HTTP Basic Authentication using the user's
+        username and password.
+
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: >
+        Bearer token authentication using the token
+        returned by POST /api/tokens.
+
+
+  # =========================================================
+  # REUSABLE QUERY PARAMETERS
+  # =========================================================
+
+  parameters:
+
+    Page:
+      name: page
+      in: query
+      required: false
+      description: Page number to retrieve.
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+
+    PerPage:
+      name: per_page
+      in: query
+      required: false
+      description: >
+        Number of items returned per page.
+        A maximum of 100 items can be requested.
+      schema:
+        type: integer
+        default: 10
+        minimum: 1
+        maximum: 100
+
+
+  # =========================================================
+  # SCHEMAS
+  # =========================================================
+
+  schemas:
+
+    # ---------------------------------------------------------
+    # ERROR
+    # ---------------------------------------------------------
+
+    Error:
+      type: object
+
+      required:
+        - error
+
+      properties:
+
+        error:
+          type: string
+          description: HTTP error description.
+          example: Not Found
+
+        message:
+          type: string
+          nullable: true
+          description: Additional information about the error.
+          example: Username already taken.
+
+
+    # ---------------------------------------------------------
+    # USER REQUEST SCHEMAS
+    # ---------------------------------------------------------
+
+    UserCreate:
+      type: object
+
+      required:
+        - username
+        - email
+        - password
+
+      properties:
+
+        username:
+          type: string
+          description: Unique username for the account.
+          example: rikesh
+
+        email:
+          type: string
+          format: email
+          description: Unique email address for the account.
+          example: rikesh@example.com
+
+        password:
+          type: string
+          format: password
+          description: Password for the account.
+          example: password123
+
+        about_me:
+          type: string
+          nullable: true
+          description: Optional profile information.
+          example: Software developer interested in AI.
+
+
+    UserUpdate:
+      type: object
+
+      description: >
+        Fields that can be changed by the authenticated user.
+        All fields are optional.
+
+      properties:
+
+        username:
+          type: string
+          description: Updated username.
+          example: rikesh_new
+
+        email:
+          type: string
+          format: email
+          description: Updated email address.
+          example: new@example.com
+
+        about_me:
+          type: string
+          nullable: true
+          description: Updated profile information.
+          example: Backend developer interested in AI.
+
+
+    # ---------------------------------------------------------
+    # USER RESPONSE SCHEMAS
+    # ---------------------------------------------------------
+
+    User:
+      type: object
+
+      properties:
+
+        id:
+          type: integer
+          description: Unique ID of the user.
+          example: 1
+
+        username:
+          type: string
+          description: Username.
+          example: rikesh
+
+        last_seen:
+          type: string
+          format: date-time
+          nullable: true
+          description: >
+            Last recorded activity time of the user.
+            Returned in ISO 8601 format.
+          example: '2026-09-22T18:30:00+00:00'
+
+        about_me:
+          type: string
+          nullable: true
+          description: Profile information supplied by the user.
+          example: Software developer interested in AI.
+
+        post_count:
+          type: integer
+          description: Number of posts created by the user.
+          example: 15
+
+        follower_count:
+          type: integer
+          description: Number of users following this user.
+          example: 8
+
+        following_count:
+          type: integer
+          description: Number of users this user follows.
+          example: 12
+
+        _links:
+          $ref: '#/components/schemas/UserLinks'
+
+
+    UserLinks:
+      type: object
+
+      properties:
+
+        self:
+          type: string
+          description: Link to this user's API resource.
+          example: /api/users/1
+
+        followers:
+          type: string
+          description: Link to this user's followers.
+          example: /api/users/1/followers
+
+        following:
+          type: string
+          description: Link to users followed by this user.
+          example: /api/users/1/following
+
+        avatar:
+          type: string
+          description: URL of the user's avatar.
+          example: https://www.gravatar.com/avatar/example
+
+
+    # ---------------------------------------------------------
+    # POST REQUEST SCHEMAS
+    # ---------------------------------------------------------
+
+    PostCreate:
+      type: object
+
+      required:
+        - body
+
+      properties:
+
+        body:
+          type: string
+          maxLength: 140
+          description: Text content of the post.
+          example: Hello, this is my first post.
+
+
+    PostUpdate:
+      type: object
+
+      required:
+        - body
+
+      properties:
+
+        body:
+          type: string
+          maxLength: 140
+          description: Updated text content of the post.
+          example: This is my updated post.
+
+
+    # ---------------------------------------------------------
+    # POST RESPONSE SCHEMAS
+    # ---------------------------------------------------------
+
+    PostAuthor:
+      type: object
+
+      properties:
+
+        user_id:
+          type: integer
+          description: ID of the user who created the post.
+          example: 1
+
+        author_name:
+          type: string
+          description: Username of the post author.
+          example: rikesh
+
+        last_seen:
+          type: string
+          nullable: true
+          description: Last recorded activity time of the author.
+          example: Tue, 22 Sep 2026 18:30:00 GMT
+
+
+    Post:
+      type: object
+
+      properties:
+
+        post_id:
+          type: integer
+          description: Unique ID of the post.
+          example: 15
+
+        author:
+          $ref: '#/components/schemas/PostAuthor'
+
+        timestamp:
+          type: string
+          description: Time when the post was created.
+          example: Tue, 22 Sep 2026 15:30:00 GMT
+
+        updated_at:
+          type: string
+          nullable: true
+          description: >
+            Time when the post was most recently updated.
+            Null if the post has never been edited.
+          example: Tue, 22 Sep 2026 16:00:00 GMT
+
+        body:
+          type: string
+          maxLength: 140
+          description: Text content of the post.
+          example: Hello, this is my first post.
+
+
+    # ---------------------------------------------------------
+    # MESSAGE RESPONSE SCHEMAS
+    # ---------------------------------------------------------
+
+    MessageUser:
+      type: object
+
+      properties:
+
+        name:
+          type: string
+          description: Username of the user.
+          example: rikesh
+
+        id:
+          type: integer
+          description: Unique ID of the user.
+          example: 1
+
+        last_seen:
+          type: string
+          nullable: true
+          description: Last recorded activity time of the user.
+          example: Tue, 22 Sep 2026 18:30:00 GMT
+
+
+    Message:
+      type: object
+
+      properties:
+
+        message_id:
+          type: integer
+          description: Unique ID of the message.
+          example: 25
+
+        sender:
+          $ref: '#/components/schemas/MessageUser'
+
+        recipient:
+          $ref: '#/components/schemas/MessageUser'
+
+        body:
+          type: string
+          maxLength: 140
+          description: Content of the message.
+          example: Hello, how are you?
+
+        timestamp:
+          type: string
+          description: Time when the message was sent.
+          example: Tue, 22 Sep 2026 15:30:00 GMT
+
+
+    # ---------------------------------------------------------
+    # TOKEN RESPONSE
+    # ---------------------------------------------------------
+
+    TokenResponse:
+      type: object
+
+      required:
+        - token
+
+      properties:
+
+        token:
+          type: string
+          description: >
+            Authentication token that can be supplied as a
+            Bearer token when accessing protected endpoints.
+          example: 0123456789abcdef0123456789abcdef
+
+
+    # ---------------------------------------------------------
+    # PAGINATION
+    # ---------------------------------------------------------
+
+    PaginationMeta:
+      type: object
+
+      properties:
+
+        page:
+          type: integer
+          description: Current page number.
+          example: 1
+
+        per_page:
+          type: integer
+          description: Number of items returned per page.
+          example: 10
+
+        total_pages:
+          type: integer
+          description: Total number of available pages.
+          example: 3
+
+        total_items:
+          type: integer
+          description: Total number of available items.
+          example: 25
+
+
+    PaginationLinks:
+      type: object
+
+      properties:
+
+        self:
+          type: string
+          description: Link to the current page.
+          example: /api/posts?page=1&per_page=10
+
+        next:
+          type: string
+          nullable: true
+          description: >
+            Link to the next page.
+            Null when there is no next page.
+          example: /api/posts?page=2&per_page=10
+
+        prev:
+          type: string
+          nullable: true
+          description: >
+            Link to the previous page.
+            Null when there is no previous page.
+          example: null
+
+
+    # ---------------------------------------------------------
+    # PAGINATED COLLECTIONS
+    # ---------------------------------------------------------
+
+    UserCollection:
+      type: object
+
+      properties:
+
+        items:
+          type: array
+          description: Users returned for the current page.
+
+          items:
+            $ref: '#/components/schemas/User'
+
+        _meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+        _links:
+          $ref: '#/components/schemas/PaginationLinks'
+
+
+    PostCollection:
+      type: object
+
+      properties:
+
+        items:
+          type: array
+          description: Posts returned for the current page.
+
+          items:
+            $ref: '#/components/schemas/Post'
+
+        _meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+        _links:
+          $ref: '#/components/schemas/PaginationLinks'
+
+
+    MessageCollection:
+      type: object
+
+      properties:
+
+        items:
+          type: array
+          description: Messages returned for the current page.
+
+          items:
+            $ref: '#/components/schemas/Message'
+
+        _meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+        _links:
+          $ref: '#/components/schemas/PaginationLinks'
+

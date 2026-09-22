@@ -8,12 +8,14 @@ from flask import abort
 from app.api.errors import bad_request, error_response
 from datetime import datetime, timezone
 
+#get post by id
 @bp.route('/posts/<int:id>', methods = ['GET'])
 @token_auth.login_required
 def get_post(id):
     return db.get_or_404(Post, id).to_dict()
 
 
+#get all posts
 @bp.route('/posts', methods=['GET'])
 @token_auth.login_required
 def get_posts():
@@ -22,6 +24,7 @@ def get_posts():
     return Post.to_collection_dict(sa.select(Post), page, per_page, 'api.get_posts')
 
 
+#get post by a certain user using user id
 @bp.route('/users/<int:user_id>/posts', methods=['GET'])
 @token_auth.login_required
 def get_user_posts(user_id):
@@ -45,6 +48,7 @@ def get_following_posts():
     pass
 
 
+#create a post
 @bp.route('/posts', methods=['POST'])
 @token_auth.login_required
 def create_post():
@@ -61,6 +65,7 @@ def create_post():
     return post.to_dict(), 201, {'Location': url_for('api.get_post', id=post.id)}
 
 
+#update a post
 @bp.route('/posts/<int:id>', methods=['PUT'])
 @token_auth.login_required
 def update_post(id):
@@ -77,6 +82,8 @@ def update_post(id):
     db.session.commit()
     return post.to_dict()
 
+
+#delete a post
 @bp.route('/posts/<int:id>', methods=['DELETE'])
 @token_auth.login_required
 def delete_post(id):
