@@ -47,3 +47,7 @@ class Config:
 
     # REDIS_URL = os.environ.get('REDIS_URL') or 'redis://'
     LOG_TO_STDOUT = os.environ.get('LOG_TO_STDOUT') == '1'
+
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = "Lax"
