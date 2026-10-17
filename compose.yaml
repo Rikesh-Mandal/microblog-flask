@@ -2,6 +2,7 @@ services:
   mysql:
     image: mysql:latest
     container_name: mysql
+    restart: unless-stopped
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -10,14 +11,28 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
 
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s  
+
+    logging:
+      driver: "local"
+      options:
+        max-size: "10m"
+        max-file: 3  
+
   microblog:
     build:
       context: .
       dockerfile: Dockerfile
+    restart: unless-stopped
     image: microblog:latest
     container_name: microblog
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
 
     volumes:
       - ./certs/ca.crt:/certs/ca.crt:ro
@@ -39,6 +54,16 @@ services:
       ELASTICSEARCH_CA_CERT: ${ELASTICSEARCH_CA_CERT}
 
       LIBRETRANSLATE_URL: ${LIBRETRANSLATE_URL}
+    
+    depends_on:
+      mysql:
+        condition: service_healthy
+    
+    logging:
+      driver: "local"
+      options:
+        max-size: "10m"
+        max-file: 3
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.5.2

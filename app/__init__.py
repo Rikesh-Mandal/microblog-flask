@@ -17,6 +17,7 @@ from flask_babel import Babel, lazy_gettext as _l #for i18n and l10n, flask_babe
 # import rq
 from config import Config
 from elasticsearch import Elasticsearch
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 
 # This function is used to determine the best match for the user's preferred language.
@@ -38,6 +39,15 @@ babel = Babel() #instance of the babel extension
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
+    app.wsgi_app = ProxyFix(
+        app.wsgi_app,
+        x_for=0,
+        x_proto=1,
+        x_host=0,
+        x_port=0,
+        x_prefix=0
+    )
+    
 
     db.init_app(app)
     migrate.init_app(app, db)
