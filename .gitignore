@@ -92,3 +92,5 @@ certificates/
 *.crt  
 *.key
 *.pem
+
+.pdf
