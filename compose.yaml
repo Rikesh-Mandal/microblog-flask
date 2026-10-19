@@ -64,6 +64,10 @@ services:
       options:
         max-size: "10m"
         max-file: 3
+    
+    networks:
+      - default
+      - redis-shared
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.5.2
@@ -118,3 +122,9 @@ volumes:
 
   # LANGUAGE MODELS FOR LIBRETRANSLATE
   libretranslate-models:
+
+
+networks:
+  redis-shared:
+    external: true
+    name: redis-shared
