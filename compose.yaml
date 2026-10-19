@@ -54,6 +54,8 @@ services:
       ELASTICSEARCH_CA_CERT: ${ELASTICSEARCH_CA_CERT}
 
       LIBRETRANSLATE_URL: ${LIBRETRANSLATE_URL}
+
+      RATELIMIT_STORAGE_URI: "redis://${REDIS_PASSWORD:?}@redis:6379/0"
     
     depends_on:
       mysql:
