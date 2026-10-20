@@ -1,8 +1,11 @@
 from app import db
 from app.api.auth import basic_auth, token_auth
 from app.api import bp
+from app.extensions import limiter
+
 
 @bp.route('/tokens', methods=['POST'])
+@limiter.limit("10 per minute", methods=['POST'])
 @basic_auth.login_required  
 def get_token():
     token = basic_auth.current_user().get_token()

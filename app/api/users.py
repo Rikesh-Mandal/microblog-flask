@@ -66,6 +66,7 @@ def create_user():
 
 #update a user
 @bp.route('/users/<int:id>', methods=['PUT'])
+@limiter.limit ("10 per hour", methods=['POST'])
 @token_auth.login_required
 def update_user(id):
     if token_auth.current_user().id != id:

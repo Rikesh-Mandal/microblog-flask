@@ -4,9 +4,12 @@ from app.api.auth import token_auth
 from app.models import Message
 from flask import request, url_for
 import sqlalchemy as sa
+from app.extensions import limiter
+
 
 #get sent messages by a user
 @bp.route('/messages/sent', methods=['GET'])
+@limiter.limit ("10 per minute", methods=['POST'])
 @token_auth.login_required
 def get_sent_messages():
     page = request.args.get('page', 1, type=int)
@@ -17,6 +20,7 @@ def get_sent_messages():
 
 #get messages received by a user
 @bp.route('/messages/received', methods=['GET'])
+@limiter.limit ("10 per minute", methods=['POST'])
 @token_auth.login_required
 def get_received_messages():
     page = request.args.get('page', 1, type=int)

@@ -7,9 +7,11 @@ import sqlalchemy as sa
 from flask import abort
 from app.api.errors import bad_request, error_response
 from datetime import datetime, timezone
+from app.extensions import limiter
 
 #get post by id
 @bp.route('/posts/<int:id>', methods = ['GET'])
+@limiter.limit ("10 per minute", methods=['POST'])
 @token_auth.login_required
 def get_post(id):
     return db.get_or_404(Post, id).to_dict()
@@ -17,6 +19,7 @@ def get_post(id):
 
 #get all posts
 @bp.route('/posts', methods=['GET'])
+@limiter.limit ("10 per minute", methods=['POST'])
 @token_auth.login_required
 def get_posts():
     page = request.args.get('page', 1, type=int)
@@ -26,6 +29,7 @@ def get_posts():
 
 #get post by a certain user using user id
 @bp.route('/users/<int:user_id>/posts', methods=['GET'])
+@limiter.limit ("10 per minute", methods=['POST'])
 @token_auth.login_required
 def get_user_posts(user_id):
     db.get_or_404(User, user_id)
@@ -50,6 +54,7 @@ def get_following_posts():
 
 #create a post
 @bp.route('/posts', methods=['POST'])
+@limiter.limit ("10 per minute", methods=['POST'])
 @token_auth.login_required
 def create_post():
     if not request.is_json:
@@ -67,6 +72,7 @@ def create_post():
 
 #update a post
 @bp.route('/posts/<int:id>', methods=['PUT'])
+@limiter.limit ("10 per minute", methods=['POST'])
 @token_auth.login_required
 def update_post(id):
     post = db.get_or_404(Post, id)
