@@ -13,11 +13,10 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from flask_moment import Moment #for date and time formatting, flask_moment is a wrapper around moment.js, a JavaScript library for date and time formatting
 from flask_babel import Babel, lazy_gettext as _l #for i18n and l10n, flask_babel is a wrapper around the Babel library, which provides tools for internationalization and localization in Python applications
-# from redis import Redis
-# import rq
 from config import Config
 from elasticsearch import Elasticsearch
 from werkzeug.middleware.proxy_fix import ProxyFix
+from app.extensions import limiter
 
 
 # This function is used to determine the best match for the user's preferred language.
@@ -47,6 +46,10 @@ def create_app(config_class=Config):
         x_port=0,
         x_prefix=0
     )
+
+    if not app.config.get("RATELIMIT_STORAGE_URI"):
+        raise RuntimeError("RATELIMIT_STORAGE_URI is required for Redis rate limiting")
+    limiter.init_app(app)
     
 
     db.init_app(app)
@@ -114,6 +117,8 @@ def create_app(config_class=Config):
 
         app.logger.setLevel(logging.INFO)
         app.logger.info('Microblog startup')
+
+
 
     return app
 

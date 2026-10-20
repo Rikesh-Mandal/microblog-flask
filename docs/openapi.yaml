@@ -10,12 +10,11 @@ info:
     token-based authentication.
 
 servers:
-  - url: https://microblog-flask-production.up.railway.app
+  - url: https://home-server.taila89f29.ts.net/
     description: Production server
 
   - url: http://localhost:5000
     description: Local development server
-
 
 tags:
   - name: Users
@@ -30,15 +29,12 @@ tags:
   - name: Authentication
     description: Authentication token management
 
-
 paths:
-
   # =========================================================
   # USERS
   # =========================================================
 
   /api/users:
-
     get:
       tags:
         - Users
@@ -52,25 +48,23 @@ paths:
         - bearerAuth: []
 
       parameters:
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/PerPage'
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
 
       responses:
-
-        '200':
+        "200":
           description: Paginated list of users returned successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserCollection'
+                $ref: "#/components/schemas/UserCollection"
 
-        '401':
+        "401":
           description: Authentication required.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
+                $ref: "#/components/schemas/Error"
 
     post:
       tags:
@@ -87,9 +81,8 @@ paths:
 
         content:
           application/json:
-
             schema:
-              $ref: '#/components/schemas/UserCreate'
+              $ref: "#/components/schemas/UserCreate"
 
             example:
               username: rikesh
@@ -98,8 +91,7 @@ paths:
               about_me: Software developer interested in AI.
 
       responses:
-
-        '201':
+        "201":
           description: User created successfully.
 
           headers:
@@ -112,27 +104,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
 
-        '400':
+        "400":
           description: >
             Required fields are missing, the username is already
             taken or the email address is already in use.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
-        '415':
+        "415":
           description: Content-Type must be application/json.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
+                $ref: "#/components/schemas/Error"
 
   /api/users/{id}:
-
     get:
       tags:
         - Users
@@ -146,7 +136,6 @@ paths:
         - bearerAuth: []
 
       parameters:
-
         - name: id
           in: path
           required: true
@@ -156,28 +145,26 @@ paths:
             minimum: 1
 
       responses:
-
-        '200':
+        "200":
           description: User retrieved successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
 
-        '401':
+        "401":
           description: Authentication required.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
-        '404':
+        "404":
           description: User not found.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
+                $ref: "#/components/schemas/Error"
 
     put:
       tags:
@@ -195,7 +182,6 @@ paths:
         - bearerAuth: []
 
       parameters:
-
         - name: id
           in: path
           required: true
@@ -209,9 +195,8 @@ paths:
 
         content:
           application/json:
-
             schema:
-              $ref: '#/components/schemas/UserUpdate'
+              $ref: "#/components/schemas/UserUpdate"
 
             example:
               username: rikesh_new
@@ -219,56 +204,53 @@ paths:
               about_me: Updated profile information.
 
       responses:
-
-        '200':
+        "200":
           description: User updated successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
 
-        '400':
+        "400":
           description: >
             The supplied username or email is already being
             used by another user.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
-        '401':
+        "401":
           description: Authentication required.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
-        '403':
+        "403":
           description: >
             The authenticated user is not allowed to update
             this user account.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
-        '404':
+        "404":
           description: User not found.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
-        '415':
+        "415":
           description: Content-Type must be application/json.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
+                $ref: "#/components/schemas/Error"
 
   /api/users/{id}/followers:
-
     get:
       tags:
         - Users
@@ -283,7 +265,6 @@ paths:
         - bearerAuth: []
 
       parameters:
-
         - name: id
           in: path
           required: true
@@ -292,35 +273,32 @@ paths:
             type: integer
             minimum: 1
 
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/PerPage'
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
 
       responses:
-
-        '200':
+        "200":
           description: Followers returned successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserCollection'
+                $ref: "#/components/schemas/UserCollection"
 
-        '401':
+        "401":
           description: Authentication required.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
-        '404':
+        "404":
           description: User not found.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
+                $ref: "#/components/schemas/Error"
 
   /api/users/{id}/following:
-
     get:
       tags:
         - Users
@@ -335,7 +313,6 @@ paths:
         - bearerAuth: []
 
       parameters:
-
         - name: id
           in: path
           required: true
@@ -344,39 +321,36 @@ paths:
             type: integer
             minimum: 1
 
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/PerPage'
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
 
       responses:
-
-        '200':
+        "200":
           description: Following list returned successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserCollection'
+                $ref: "#/components/schemas/UserCollection"
 
-        '401':
+        "401":
           description: Authentication required.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
-        '404':
+        "404":
           description: User not found.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
+                $ref: "#/components/schemas/Error"
 
   # =========================================================
   # POSTS
   # =========================================================
 
   /api/posts:
-
     get:
       tags:
         - Posts
@@ -390,25 +364,23 @@ paths:
         - bearerAuth: []
 
       parameters:
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/PerPage'
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
 
       responses:
-
-        '200':
+        "200":
           description: Paginated list of posts returned successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PostCollection'
+                $ref: "#/components/schemas/PostCollection"
 
-        '401':
+        "401":
           description: Authentication required.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
+                $ref: "#/components/schemas/Error"
 
     post:
       tags:
@@ -428,16 +400,14 @@ paths:
 
         content:
           application/json:
-
             schema:
-              $ref: '#/components/schemas/PostCreate'
+              $ref: "#/components/schemas/PostCreate"
 
             example:
               body: Hello, this is my first post.
 
       responses:
-
-        '201':
+        "201":
           description: Post created successfully.
 
           headers:
@@ -450,34 +420,32 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Post'
+                $ref: "#/components/schemas/Post"
 
-        '400':
+        "400":
           description: >
             The request body is missing or does not contain
             the body field.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
-        '401':
+        "401":
           description: Authentication required.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
-        '415':
+        "415":
           description: Content-Type must be application/json.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
+                $ref: "#/components/schemas/Error"
 
   /api/posts/{id}:
-
     get:
       tags:
         - Posts
@@ -491,7 +459,6 @@ paths:
         - bearerAuth: []
 
       parameters:
-
         - name: id
           in: path
           required: true
@@ -501,28 +468,26 @@ paths:
             minimum: 1
 
       responses:
-
-        '200':
+        "200":
           description: Post retrieved successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Post'
+                $ref: "#/components/schemas/Post"
 
-        '401':
+        "401":
           description: Authentication required.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
-        '404':
+        "404":
           description: Post not found.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
+                $ref: "#/components/schemas/Error"
 
     put:
       tags:
@@ -539,7 +504,6 @@ paths:
         - bearerAuth: []
 
       parameters:
-
         - name: id
           in: path
           required: true
@@ -553,60 +517,57 @@ paths:
 
         content:
           application/json:
-
             schema:
-              $ref: '#/components/schemas/PostUpdate'
+              $ref: "#/components/schemas/PostUpdate"
 
             example:
               body: This is my updated post.
 
       responses:
-
-        '200':
+        "200":
           description: Post updated successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Post'
+                $ref: "#/components/schemas/Post"
 
-        '400':
+        "400":
           description: >
             The request body is missing or does not contain
             the body field.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
-        '401':
+        "401":
           description: Authentication required.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
-        '403':
+        "403":
           description: >
             The authenticated user does not own this post.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
-        '404':
+        "404":
           description: Post not found.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
-        '415':
+        "415":
           description: Content-Type must be application/json.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
+                $ref: "#/components/schemas/Error"
 
     delete:
       tags:
@@ -623,7 +584,6 @@ paths:
         - bearerAuth: []
 
       parameters:
-
         - name: id
           in: path
           required: true
@@ -633,35 +593,32 @@ paths:
             minimum: 1
 
       responses:
-
-        '204':
+        "204":
           description: Post deleted successfully.
 
-        '401':
+        "401":
           description: Authentication required.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
-        '403':
+        "403":
           description: >
             The authenticated user does not own this post.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
-        '404':
+        "404":
           description: Post not found.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
+                $ref: "#/components/schemas/Error"
 
   /api/users/{user_id}/posts:
-
     get:
       tags:
         - Posts
@@ -678,7 +635,6 @@ paths:
         - bearerAuth: []
 
       parameters:
-
         - name: user_id
           in: path
           required: true
@@ -687,48 +643,45 @@ paths:
             type: integer
             minimum: 1
 
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/PerPage'
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
 
       responses:
-
-        '200':
+        "200":
           description: User posts returned successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PostCollection'
+                $ref: "#/components/schemas/PostCollection"
 
-        '401':
+        "401":
           description: Authentication required.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
-        '403':
+        "403":
           description: >
             The authenticated user's ID does not match
             the requested user ID.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
-        '404':
+        "404":
           description: User not found.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
+                $ref: "#/components/schemas/Error"
 
   # =========================================================
   # MESSAGES
   # =========================================================
 
   /api/messages/sent:
-
     get:
       tags:
         - Messages
@@ -743,28 +696,25 @@ paths:
         - bearerAuth: []
 
       parameters:
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/PerPage'
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
 
       responses:
-
-        '200':
+        "200":
           description: Sent messages returned successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageCollection'
+                $ref: "#/components/schemas/MessageCollection"
 
-        '401':
+        "401":
           description: Authentication required.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
+                $ref: "#/components/schemas/Error"
 
   /api/messages/received:
-
     get:
       tags:
         - Messages
@@ -779,32 +729,29 @@ paths:
         - bearerAuth: []
 
       parameters:
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/PerPage'
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PerPage"
 
       responses:
-
-        '200':
+        "200":
           description: Received messages returned successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageCollection'
+                $ref: "#/components/schemas/MessageCollection"
 
-        '401':
+        "401":
           description: Authentication required.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
+                $ref: "#/components/schemas/Error"
 
   # =========================================================
   # AUTHENTICATION
   # =========================================================
 
   /api/tokens:
-
     post:
       tags:
         - Authentication
@@ -820,21 +767,19 @@ paths:
         - basicAuth: []
 
       responses:
-
-        '200':
+        "200":
           description: Authentication successful.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TokenResponse'
+                $ref: "#/components/schemas/TokenResponse"
 
-        '401':
+        "401":
           description: Invalid username or password.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
+                $ref: "#/components/schemas/Error"
 
     delete:
       tags:
@@ -850,26 +795,22 @@ paths:
         - bearerAuth: []
 
       responses:
-
-        '204':
+        "204":
           description: Token revoked successfully.
 
-        '401':
+        "401":
           description: Authentication required or token is invalid.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-
+                $ref: "#/components/schemas/Error"
 
 components:
-
   # =========================================================
   # AUTHENTICATION
   # =========================================================
 
   securitySchemes:
-
     basicAuth:
       type: http
       scheme: basic
@@ -884,13 +825,11 @@ components:
         Bearer token authentication using the token
         returned by POST /api/tokens.
 
-
   # =========================================================
   # REUSABLE QUERY PARAMETERS
   # =========================================================
 
   parameters:
-
     Page:
       name: page
       in: query
@@ -914,13 +853,11 @@ components:
         minimum: 1
         maximum: 100
 
-
   # =========================================================
   # SCHEMAS
   # =========================================================
 
   schemas:
-
     # ---------------------------------------------------------
     # ERROR
     # ---------------------------------------------------------
@@ -932,7 +869,6 @@ components:
         - error
 
       properties:
-
         error:
           type: string
           description: HTTP error description.
@@ -943,7 +879,6 @@ components:
           nullable: true
           description: Additional information about the error.
           example: Username already taken.
-
 
     # ---------------------------------------------------------
     # USER REQUEST SCHEMAS
@@ -958,7 +893,6 @@ components:
         - password
 
       properties:
-
         username:
           type: string
           description: Unique username for the account.
@@ -982,7 +916,6 @@ components:
           description: Optional profile information.
           example: Software developer interested in AI.
 
-
     UserUpdate:
       type: object
 
@@ -991,7 +924,6 @@ components:
         All fields are optional.
 
       properties:
-
         username:
           type: string
           description: Updated username.
@@ -1009,7 +941,6 @@ components:
           description: Updated profile information.
           example: Backend developer interested in AI.
 
-
     # ---------------------------------------------------------
     # USER RESPONSE SCHEMAS
     # ---------------------------------------------------------
@@ -1018,7 +949,6 @@ components:
       type: object
 
       properties:
-
         id:
           type: integer
           description: Unique ID of the user.
@@ -1036,7 +966,7 @@ components:
           description: >
             Last recorded activity time of the user.
             Returned in ISO 8601 format.
-          example: '2026-09-22T18:30:00+00:00'
+          example: "2026-09-22T18:30:00+00:00"
 
         about_me:
           type: string
@@ -1060,14 +990,12 @@ components:
           example: 12
 
         _links:
-          $ref: '#/components/schemas/UserLinks'
-
+          $ref: "#/components/schemas/UserLinks"
 
     UserLinks:
       type: object
 
       properties:
-
         self:
           type: string
           description: Link to this user's API resource.
@@ -1088,7 +1016,6 @@ components:
           description: URL of the user's avatar.
           example: https://www.gravatar.com/avatar/example
 
-
     # ---------------------------------------------------------
     # POST REQUEST SCHEMAS
     # ---------------------------------------------------------
@@ -1100,13 +1027,11 @@ components:
         - body
 
       properties:
-
         body:
           type: string
           maxLength: 140
           description: Text content of the post.
           example: Hello, this is my first post.
-
 
     PostUpdate:
       type: object
@@ -1115,13 +1040,11 @@ components:
         - body
 
       properties:
-
         body:
           type: string
           maxLength: 140
           description: Updated text content of the post.
           example: This is my updated post.
-
 
     # ---------------------------------------------------------
     # POST RESPONSE SCHEMAS
@@ -1131,7 +1054,6 @@ components:
       type: object
 
       properties:
-
         user_id:
           type: integer
           description: ID of the user who created the post.
@@ -1148,19 +1070,17 @@ components:
           description: Last recorded activity time of the author.
           example: Tue, 22 Sep 2026 18:30:00 GMT
 
-
     Post:
       type: object
 
       properties:
-
         post_id:
           type: integer
           description: Unique ID of the post.
           example: 15
 
         author:
-          $ref: '#/components/schemas/PostAuthor'
+          $ref: "#/components/schemas/PostAuthor"
 
         timestamp:
           type: string
@@ -1181,7 +1101,6 @@ components:
           description: Text content of the post.
           example: Hello, this is my first post.
 
-
     # ---------------------------------------------------------
     # MESSAGE RESPONSE SCHEMAS
     # ---------------------------------------------------------
@@ -1190,7 +1109,6 @@ components:
       type: object
 
       properties:
-
         name:
           type: string
           description: Username of the user.
@@ -1207,22 +1125,20 @@ components:
           description: Last recorded activity time of the user.
           example: Tue, 22 Sep 2026 18:30:00 GMT
 
-
     Message:
       type: object
 
       properties:
-
         message_id:
           type: integer
           description: Unique ID of the message.
           example: 25
 
         sender:
-          $ref: '#/components/schemas/MessageUser'
+          $ref: "#/components/schemas/MessageUser"
 
         recipient:
-          $ref: '#/components/schemas/MessageUser'
+          $ref: "#/components/schemas/MessageUser"
 
         body:
           type: string
@@ -1235,7 +1151,6 @@ components:
           description: Time when the message was sent.
           example: Tue, 22 Sep 2026 15:30:00 GMT
 
-
     # ---------------------------------------------------------
     # TOKEN RESPONSE
     # ---------------------------------------------------------
@@ -1247,14 +1162,12 @@ components:
         - token
 
       properties:
-
         token:
           type: string
           description: >
             Authentication token that can be supplied as a
             Bearer token when accessing protected endpoints.
           example: 0123456789abcdef0123456789abcdef
-
 
     # ---------------------------------------------------------
     # PAGINATION
@@ -1264,7 +1177,6 @@ components:
       type: object
 
       properties:
-
         page:
           type: integer
           description: Current page number.
@@ -1285,12 +1197,10 @@ components:
           description: Total number of available items.
           example: 25
 
-
     PaginationLinks:
       type: object
 
       properties:
-
         self:
           type: string
           description: Link to the current page.
@@ -1312,7 +1222,6 @@ components:
             Null when there is no previous page.
           example: null
 
-
     # ---------------------------------------------------------
     # PAGINATED COLLECTIONS
     # ---------------------------------------------------------
@@ -1321,55 +1230,49 @@ components:
       type: object
 
       properties:
-
         items:
           type: array
           description: Users returned for the current page.
 
           items:
-            $ref: '#/components/schemas/User'
+            $ref: "#/components/schemas/User"
 
         _meta:
-          $ref: '#/components/schemas/PaginationMeta'
+          $ref: "#/components/schemas/PaginationMeta"
 
         _links:
-          $ref: '#/components/schemas/PaginationLinks'
-
+          $ref: "#/components/schemas/PaginationLinks"
 
     PostCollection:
       type: object
 
       properties:
-
         items:
           type: array
           description: Posts returned for the current page.
 
           items:
-            $ref: '#/components/schemas/Post'
+            $ref: "#/components/schemas/Post"
 
         _meta:
-          $ref: '#/components/schemas/PaginationMeta'
+          $ref: "#/components/schemas/PaginationMeta"
 
         _links:
-          $ref: '#/components/schemas/PaginationLinks'
-
+          $ref: "#/components/schemas/PaginationLinks"
 
     MessageCollection:
       type: object
 
       properties:
-
         items:
           type: array
           description: Messages returned for the current page.
 
           items:
-            $ref: '#/components/schemas/Message'
+            $ref: "#/components/schemas/Message"
 
         _meta:
-          $ref: '#/components/schemas/PaginationMeta'
+          $ref: "#/components/schemas/PaginationMeta"
 
         _links:
-          $ref: '#/components/schemas/PaginationLinks'
-
+          $ref: "#/components/schemas/PaginationLinks"
