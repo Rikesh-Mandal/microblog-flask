@@ -1,5 +1,11 @@
 #!/bin/bash
 # this script is used to boot a Docker container
+
+if [ -z "${RATELIMIT_STORAGE_URI:-}" ]; then
+    echo "ERROR: RATELIMIT_STORAGE_URI is required" >&2
+    exit 1
+fi
+
 while true; do
     flask db upgrade
     if [[ "$?" == "0" ]]; then

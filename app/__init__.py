@@ -46,18 +46,14 @@ def create_app(config_class=Config):
         x_port=0,
         x_prefix=0
     )
-
-    if not app.config.get("RATELIMIT_STORAGE_URI"):
-        raise RuntimeError("RATELIMIT_STORAGE_URI is required for Redis rate limiting")
-    limiter.init_app(app)
-    
-
+   
     db.init_app(app)
     migrate.init_app(app, db)
     login.init_app(app)
     mail.init_app(app)
     moment.init_app(app)
     babel.init_app(app, locale_selector=get_locale)
+    limiter.init_app(app)
     # app.redis = Redis.from_url(app.config['REDIS_URL'])
     # app.task_queue = rq.Queue('microblog-tasks', connection=app.redis)
     app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']],

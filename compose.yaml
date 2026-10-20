@@ -55,7 +55,7 @@ services:
 
       LIBRETRANSLATE_URL: ${LIBRETRANSLATE_URL}
 
-      RATELIMIT_STORAGE_URI: "redis://${REDIS_PASSWORD:?}@redis:6379/0"
+      RATELIMIT_STORAGE_URI: ${RATELIMIT_STORAGE_URI}
     
     depends_on:
       mysql:
