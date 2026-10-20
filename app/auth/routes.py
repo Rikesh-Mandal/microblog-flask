@@ -8,10 +8,11 @@ from app import db
 from app.auth.forms import LoginForm, RegistrationForm, ResetPasswordRequestForm, ResetPasswordForm
 from app.models import User
 from app.auth.email import send_password_reset_email
-
+from app.extensions import limiter
 
 
 @bp.route('/login', methods=['GET', 'POST'])
+@limiter.limit("5 per minute", methods=['POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
@@ -36,6 +37,7 @@ def logout():
 
 
 @bp.route('/register', methods=['GET', 'POST'])
+@limiter.limit("5 per hour", methods=["POST"])
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))

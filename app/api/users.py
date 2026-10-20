@@ -6,7 +6,7 @@ from flask import request, url_for
 from app.api.errors import bad_request, error_response
 from flask import abort
 from app.api.auth import token_auth
-
+from app.extensions import limiter
 
 #get user by id
 @bp.route('/users/<int:id>', methods = ['GET'])
@@ -46,6 +46,7 @@ def get_following(id):
 
 #create a user
 @bp.route('/users', methods = ['POST'])
+@limiter.limit("10 per hour", methods=["POST"])
 def create_user():
     if not request.is_json:
         return error_response(415, 'Content-Type must be application/json')
