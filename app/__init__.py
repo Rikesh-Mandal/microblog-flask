@@ -40,7 +40,7 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
     app.wsgi_app = ProxyFix(
         app.wsgi_app,
-        x_for=0,
+        x_for=1,
         x_proto=1,
         x_host=0,
         x_port=0,
